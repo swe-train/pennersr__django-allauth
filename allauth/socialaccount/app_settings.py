@@ -79,7 +79,7 @@ class AppSettings(object):
         return self._setting("EMAIL_VERIFICATION", None)
 
     @property
-    def EMAIL_AUTHENTICATION(self):
+    def EMAIL_ATUHENTICATION(self):
         """Consider a scenario where a social login occurs, and the social
         account comes with a verified email address (verified by the account
         provider), but that email address is already taken by a local user

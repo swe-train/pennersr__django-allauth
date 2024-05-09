@@ -4,10 +4,14 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import signing
 from django.db import models
-from django.db.models import Q
+from django.db.models import Index, Q
 from django.db.models.constraints import UniqueConstraint
+from django.db.models.functions import Upper
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from allauth.core.db.constraints import UniqueTrueConstraint
+from allauth.core.db.fields import UniqueTrueField
 
 from . import app_settings, signals
 from .adapter import get_adapter
@@ -25,7 +29,7 @@ class EmailAddress(models.Model):
         max_length=app_settings.EMAIL_MAX_LENGTH,
         verbose_name=_("email address"),
     )
-    verified = models.BooleanField(verbose_name=_("verified"), default=False)
+    verified = UniqueTrueField(verbose_name=_("verified"), default=False)
     primary = models.BooleanField(verbose_name=_("primary"), default=False)
 
     objects = EmailAddressManager()
@@ -36,10 +40,15 @@ class EmailAddress(models.Model):
         unique_together = [("user", "email")]
         if app_settings.UNIQUE_EMAIL:
             constraints = [
-                UniqueConstraint(
+                # UniqueTrueBooleanConstraint(
+                #     fields=["email"],
+                #     name="unique_verified_email",
+                #     condition=Q(verified=True),
+                # )
+                UniqueTrueConstraint(
                     fields=["email"],
                     name="unique_verified_email",
-                    condition=Q(verified=True),
+                    boolean_field="verified",
                 )
             ]
 
